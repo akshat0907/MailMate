@@ -1,7 +1,8 @@
 import streamlit as st
-import openai
+import cohere
 
-client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Initialize Cohere client
+co = cohere.Client(st.secrets["COHERE_API_KEY"])  # Replace with your actual key in secrets.toml
 
 def generate_email_response(email_text, tone):
     prompt = f"""
@@ -12,8 +13,10 @@ Email:
 
 Reply:
 """
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}]
+    response = co.generate(
+        model="command-r",  # or "command", "command-light", etc.
+        prompt=prompt,
+        max_tokens=300,
+        temperature=0.7
     )
-    return response.choices[0].message.content
+    return response.generations[0].text.strip()
